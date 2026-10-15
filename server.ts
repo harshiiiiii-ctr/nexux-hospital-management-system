@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { db } from './server/db.js';
@@ -377,76 +376,6 @@ app.post('/api/appointments/:id/doctor-consultation', (req, res) => {
 // 11. Live SQL Query Logs for College Mini Project Viva Demonstration
 app.get('/api/sql-logs', (req, res) => {
   res.json(db.getSqlLogs());
-});
-
-// 12. Pure Core Java Project Files (Directly for College Submission)
-app.get('/api/java-project/files', (req, res) => {
-  try {
-    const javaDir = path.resolve(__dirname, 'java-hospital-project');
-    const files: { name: string; path: string; content: string; category: string }[] = [];
-
-    // Core Swing App
-    const swingPath = path.join(javaDir, 'HospitalSwingApp.java');
-    if (fs.existsSync(swingPath)) {
-      files.push({
-        name: 'HospitalSwingApp.java',
-        path: 'HospitalSwingApp.java',
-        content: fs.readFileSync(swingPath, 'utf-8'),
-        category: 'Swing Desktop (JFrame + JTable)'
-      });
-    }
-
-    // Schema
-    const schemaPath = path.join(javaDir, 'schema.sql');
-    if (fs.existsSync(schemaPath)) {
-      files.push({
-        name: 'schema.sql',
-        path: 'schema.sql',
-        content: fs.readFileSync(schemaPath, 'utf-8'),
-        category: 'Database SQL'
-      });
-    }
-
-    // README
-    const readmePath = path.join(javaDir, 'README.md');
-    if (fs.existsSync(readmePath)) {
-      files.push({
-        name: 'README.md',
-        path: 'README.md',
-        content: fs.readFileSync(readmePath, 'utf-8'),
-        category: 'Documentation & Run Guide'
-      });
-    }
-
-    // Packaged Java files
-    const srcDir = path.join(javaDir, 'src', 'com', 'medicare');
-    const readDirRecursive = (dir: string, rel: string) => {
-      if (!fs.existsSync(dir)) return;
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const full = path.join(dir, entry.name);
-        const subRel = rel ? `${rel}/${entry.name}` : entry.name;
-        if (entry.isDirectory()) {
-          readDirRecursive(full, subRel);
-        } else if (entry.isFile() && entry.name.endsWith('.java')) {
-          // Prevent duplicates (e.g. HospitalSwingApp.java exists both in root and package)
-          if (!files.some(f => f.name === entry.name || f.path === `src/com/medicare/${subRel}`)) {
-            files.push({
-              name: entry.name,
-              path: `src/com/medicare/${subRel}`,
-              content: fs.readFileSync(full, 'utf-8'),
-              category: 'Modular Java Architecture'
-            });
-          }
-        }
-      }
-    };
-    readDirRecursive(srcDir, '');
-
-    res.json(files);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Failed to read Java files' });
-  }
 });
 
 // Vite middleware or Static files
